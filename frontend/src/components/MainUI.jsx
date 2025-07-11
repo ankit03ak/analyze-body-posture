@@ -12,6 +12,8 @@ export default function VideoInput() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const API_URL = process.env.REACT_APP_BACKEND_API
+
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("video/")) {
@@ -47,15 +49,6 @@ export default function VideoInput() {
     return canvas.toDataURL('image/jpeg');
   };
 
-const handleHealthCheck = async () => {
-  try {
-    const res = await axios("https://bad-posture-api.onrender.com/api/health");
-    console.log(res.data); 
-  } catch (error) {
-    console.error("Health check failed:", error);
-  }
-};
-
   const handleSubmit = async () => {
     setAnalysisResult(null);
     setIsAnalyzing(true);
@@ -71,7 +64,7 @@ const handleHealthCheck = async () => {
 
     setCapturedImage(screenshot);
 
-    const res = await axios.post("http://localhost:5000/api/analyze-image", {
+    const res = await axios.post(`${API_URL}/api/analyze-image`, {
       image: screenshot,
       mode,
     });
@@ -79,7 +72,7 @@ const handleHealthCheck = async () => {
     setAnalysisResult(res.data);
     toast("Webcam image analyzed successfully!", 'success');
   } else if (capturedImage) {
-    const res = await axios.post("http://localhost:5000/api/analyze-image", {
+    const res = await axios.post(`${API_URL}/api/analyze-image`, {
       image: capturedImage,
       mode,
     });
@@ -91,7 +84,7 @@ const handleHealthCheck = async () => {
     formData.append("video", videoFile);
     formData.append("mode", mode);
 
-    const res = await axios.post("http://localhost:5000/api/analyze-video", formData, {
+    const res = await axios.post(`${API_URL}/api/analyze-video`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -121,20 +114,11 @@ const handleHealthCheck = async () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
 
-
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
-
-
-      <div className='hover:cursor-pointer' onClick={handleHealthCheck}>Click here</div>
-
-
-
-        {/* Header */}
         <div className="text-center mb-2">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
             PostureAI Pro
@@ -146,9 +130,8 @@ const handleHealthCheck = async () => {
           </div>
         </div>
 
-        {/* Main Content Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-          {/* Mode Selection */}
+          
           <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -175,10 +158,8 @@ const handleHealthCheck = async () => {
             </div>
           </div>
 
-          {/* Upload Section */}
           <div className="p-8 lg:p-12">
             <div className="grid lg:grid-cols-2 gap-8 mb-12">
-              {/* File Upload */}
               <div className="relative group">
                 <input
                   type="file"
@@ -208,7 +189,6 @@ const handleHealthCheck = async () => {
                 </label>
               </div>
 
-              {/* Webcam Option */}
               <div className="relative group">
                 <button
                   onClick={handleWebcamToggle}
@@ -232,7 +212,6 @@ const handleHealthCheck = async () => {
               </div>
             </div>
 
-            {/* Media Preview */}
             {(showWebcam || capturedImage || videoFile) && (
               <div className="mb-12">
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 border border-gray-200 shadow-inner">
@@ -307,7 +286,6 @@ const handleHealthCheck = async () => {
               </div>
             )}
 
-            {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 onClick={handleSubmit}
@@ -336,7 +314,6 @@ const handleHealthCheck = async () => {
           </div>
         </div>
 
-        {/* Analysis Results */}
         {analysisResult && (
           <div className="mt-8 bg-black/30 backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden border border-white/20">
             <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-8">
@@ -352,7 +329,6 @@ const handleHealthCheck = async () => {
             </div>
             
             <div className="p-8 lg:p-12">
-              {/* Statistics */}
               <div className="grid md:grid-cols-3 gap-8 mb-12">
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 text-center border border-blue-100 hover:shadow-lg transition-shadow duration-300">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -386,7 +362,6 @@ const handleHealthCheck = async () => {
                 </div>
               </div>
 
-              {/* Violations List */}
               {analysisResult.violations?.length > 0 && (
                 <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-3xl p-8 border border-red-100">
                   <h3 className="text-2xl font-bold text-red-700 mb-6 flex items-center gap-3">
@@ -422,7 +397,6 @@ const handleHealthCheck = async () => {
                 </div>
               )}
 
-              {/* Success Message */}
               {analysisResult.violations?.length === 0 && (
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-12 text-center border border-green-100">
                   <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
