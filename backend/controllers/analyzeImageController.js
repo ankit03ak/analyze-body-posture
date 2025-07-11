@@ -16,7 +16,7 @@ module.exports = (req, res) => {
     if (err) return res.status(500).json({ error: "Failed to save image" });
 
     exec(`python analyze_pose.py ${filePath} ${mode}`, (err, stdout, stderr) => {
-
+      
   try {
     const result = JSON.parse(stdout);
     res.json(result);

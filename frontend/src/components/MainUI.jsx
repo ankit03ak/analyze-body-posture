@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Camera, Upload, Play, AlertCircle, CheckCircle, X, Activity, Eye, Sparkles, Target, TrendingUp } from "lucide-react";
 import { toast } from "react-toastify";
+import axios from 'axios'
 
 export default function VideoInput() {
   const [videoFile, setVideoFile] = useState(null);
@@ -46,62 +47,68 @@ export default function VideoInput() {
     return canvas.toDataURL('image/jpeg');
   };
 
+const handleHealthCheck = async () => {
+  try {
+    const res = await axios("https://bad-posture-api.onrender.com/api/health");
+    console.log(res.data); 
+  } catch (error) {
+    console.error("Health check failed:", error);
+  }
+};
+
   const handleSubmit = async () => {
     setAnalysisResult(null);
     setIsAnalyzing(true);
 
     try {
-      if (showWebcam) {
-        const screenshot = captureWebcamImage();
-        if (!screenshot) {
-          toast("Could not capture webcam image", 'error');
-          setIsAnalyzing(false);
-          return;
-        }
-
-        setCapturedImage(screenshot);
-
-        const res = await fetch("http://localhost:5000/api/analyze-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: screenshot, mode }),
-        });
-
-        const data = await res.json();
-        setAnalysisResult(data);
-        toast("Webcam image analyzed successfully!", 'success');
-      } else if (capturedImage) {
-        const res = await fetch("http://localhost:5000/api/analyze-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: capturedImage, mode }),
-        });
-
-        const data = await res.json();
-        setAnalysisResult(data);
-        toast("Image analyzed successfully!", 'success');
-      } else if (videoFile) {
-        const formData = new FormData();
-        formData.append("video", videoFile);
-        formData.append("mode", mode);
-
-        const res = await fetch("http://localhost:5000/api/analyze-video", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        setAnalysisResult(data);
-        toast("Video analyzed successfully!", 'success');
-      } else {
-        toast("Please upload a video/image or use webcam.", 'warning');
-      }
-    } catch (error) {
-      console.error("Submission error:", error);
-      toast("Something went wrong while analyzing.", 'error');
-    } finally {
+  if (showWebcam) {
+    const screenshot = captureWebcamImage();
+    if (!screenshot) {
+      toast.error("Could not capture webcam image", 'error');
       setIsAnalyzing(false);
+      return;
     }
+
+    setCapturedImage(screenshot);
+
+    const res = await axios.post("http://localhost:5000/api/analyze-image", {
+      image: screenshot,
+      mode,
+    });
+
+    setAnalysisResult(res.data);
+    toast("Webcam image analyzed successfully!", 'success');
+  } else if (capturedImage) {
+    const res = await axios.post("http://localhost:5000/api/analyze-image", {
+      image: capturedImage,
+      mode,
+    });
+
+    setAnalysisResult(res.data);
+    toast("Image analyzed successfully!", 'success');
+  } else if (videoFile) {
+    const formData = new FormData();
+    formData.append("video", videoFile);
+    formData.append("mode", mode);
+
+    const res = await axios.post("http://localhost:5000/api/analyze-video", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    setAnalysisResult(res.data);
+    toast("Video analyzed successfully!", 'success');
+  } else {
+    toast.error("Please upload a video/image or use webcam.", 'warning');
+  }
+} catch (error) {
+  console.error("Submission error:", error);
+  toast.error("Something went wrong while analyzing.", 'error');
+} finally {
+  setIsAnalyzing(false)
+}
+
   };
 
   const clearInput = () => {
@@ -113,12 +120,20 @@ export default function VideoInput() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
+
+
+      <div className='hover:cursor-pointer' onClick={handleHealthCheck}>Click here</div>
+
+
+
         {/* Header */}
         <div className="text-center mb-2">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
@@ -258,7 +273,7 @@ export default function VideoInput() {
                                 })
                                 .catch(err => {
                                   console.error('Error accessing webcam:', err);
-                                  toast("Could not access webcam", 'error');
+                                  toast.error("Could not access webcam", 'error');
                                 });
                             }
                           }}
