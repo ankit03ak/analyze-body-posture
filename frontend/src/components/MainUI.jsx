@@ -11,19 +11,31 @@ export default function VideoInput() {
   const webcamRef = useRef(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const previewRef = useRef(null);
 
   const API_URL = process.env.REACT_APP_BACKEND_API
+
+  const scrollToPreview = () => {
+  setTimeout(() => {
+    previewRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' 
+    });
+  }, 100); 
+};
 
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("video/")) {
       setVideoFile(file);
+      scrollToPreview();
       setCapturedImage(null);
       setShowWebcam(false);
     } else if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = () => {
         setCapturedImage(reader.result);
+        scrollToPreview();
         setVideoFile(null);
         setShowWebcam(false);
       };
@@ -33,6 +45,7 @@ export default function VideoInput() {
 
   const handleWebcamToggle = () => {
     setShowWebcam(true);
+    scrollToPreview();
     setVideoFile(null);
     setCapturedImage(null);
   };
@@ -213,7 +226,7 @@ export default function VideoInput() {
             </div>
 
             {(showWebcam || capturedImage || videoFile) && (
-              <div className="mb-12">
+              <div className="mb-12" ref={previewRef}>
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 border border-gray-200 shadow-inner">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
