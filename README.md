@@ -72,7 +72,7 @@ npm install
 cd backend
 npm run dev
 ```
-The backend will run on `http://localhost:5000`
+The backend will run on `http://localhost:3000`
 
 2. **Start the Frontend Development Server**
 ```bash
@@ -95,7 +95,7 @@ Uploads video file for analysis
 - **Body**: FormData with video file
 - **Response**: `{ analysisId, message, filename }`
 
-### GET `/health`
+### GET `api/health`
 Health check endpoint
 - **Response**: `{ status, timestamp }`
 
@@ -150,6 +150,6 @@ Health check endpoint
 - Lucide React for beautiful icons
 ---
 
-🔗 [Live App](https://your-vercel-url.com)  
-🖥 [Backend API](https://your-render-url.com)
+🔗 [Live App](https://analyze-body-posture.vercel.app/)  
+🖥 [Backend API](https://bad-posture-api.onrender.com)
 
